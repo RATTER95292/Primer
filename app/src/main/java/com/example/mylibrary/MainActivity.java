@@ -1,8 +1,16 @@
 package com.example.mylibrary;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.ContentValues;
+import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
 
 import java.util.ArrayList;
@@ -11,6 +19,13 @@ public class MainActivity extends AppCompatActivity {
 
     ListView list;
     ArrayList<Book> listBook = new ArrayList<Book>();
+    BookAdapter bookAdapter;
+    int position;
+
+    // Создаем переменные для работы с БД
+    DBHelper databaseHelper;
+    SQLiteDatabase db;
+    Cursor userCursor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -19,31 +34,80 @@ public class MainActivity extends AppCompatActivity {
 
         list = findViewById(R.id.list);
 
+        databaseHelper = new DBHelper(getApplicationContext());
+
         setInitialData();
 
-        BookAdapter bookAdapter = new BookAdapter(this, R.id.listitem, listBook);
+        bookAdapter = new BookAdapter(this, R.layout.listitem, listBook);
 
         list.setAdapter(bookAdapter);
 
+        list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+
+                position = i;
+                Intent  intent = new Intent(getApplicationContext(), MainActivity2.class);
+                intent.putExtra(Book.class.getSimpleName(),listBook.get(i));
+                startActivityForResult(intent,1);
+            }
+        });
+
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        if(data == null){return;}
+
+        Book book = (Book)data.getSerializableExtra(Book.class.getSimpleName());
+
+        listBook.get(position).setRating(book.getRating());
+
+        bookAdapter.notifyDataSetChanged();
+        super.onActivityResult(requestCode, resultCode, data);
     }
 
     private void setInitialData(){
-        listBook.add(new Book("Алиса в стране чудес","Льюис Кэрролл",4));
-        listBook.add(new Book("Двадцать тысяч лье под водой","Жюль Верн",0));
-        listBook.add(new Book("Дракула","Брэм Стокер",0));
-        listBook.add(new Book("Война миров","Герберт Уэллс",0));
-        listBook.add(new Book("Дверь в лето","Роберт Хайнлайн",5));
-        listBook.add(new Book("Звездный десант","Роберт Хайнлайн",0));
-        listBook.add(new Book("Нейромант","Уильям Гибсон",0));
-        listBook.add(new Book("2001: Космическая Одиссея","Артур Кларк",0));
-        listBook.add(new Book("Парк Юрского периода","Майкл Крайтон",0));
-        listBook.add(new Book("Машина времени","Герберт Уэллс",0));
-        listBook.add(new Book("1984","Джордж Оруэлл ",0));
-        listBook.add(new Book("451 градус по Фаренгейту","Рэй Брэдбери",0));
-        listBook.add(new Book("Солярис","Станислав Лем",0));
-        listBook.add(new Book("Марсианские хроники","Рэй Брэдбери",0));
-        listBook.add(new Book("Ожерелье планет Эйкумены","Урсула Ле Гуин",0));
-        listBook.add(new Book("Дюна","Фрэнк Герберт ",0));
+        if(listBook != null) listBook.clear();
+
+        db = databaseHelper.getReadableDatabase();
+
+        userCursor = db.rawQuery("select * from " + DBHelper.TABLE,null );
+
+        while(userCursor.moveToNext()){
+            String name = userCursor.getString(1);
+            String avtor = userCursor.getString(2);
+            Float rating = userCursor.getFloat(3);
+            listBook.add(new Book(name, avtor,rating));
+        }
+
+        userCursor.close();
+        db.close();
+    }
+    void updateData(Book book, int id)
+    {
+
+        db = databaseHelper.getWritableDatabase();
+        ContentValues cv = new ContentValues();
+        cv.put(DBHelper.RATING, book.getRating());
+        db.update(DBHelper.TABLE, cv, DBHelper.COLUMN_ID + "=" + String.valueOf(id+1),null);
+        db.close();
     }
 
+    void insertData(Book book){
+
+        db = databaseHelper.getWritableDatabase();
+        ContentValues cv = new ContentValues();
+        cv.put(DBHelper.COLUMN_NAMEBOOK, book.getNameBook());
+        cv.put(DBHelper.COLUMN_AVTORNAME, book.getAvtorName());
+        cv.put(DBHelper.RATING, book.getRating());
+
+        db.insert(DBHelper.TABLE, null, cv);
+        db.close();
+
+    }
+
+
+
 }
+

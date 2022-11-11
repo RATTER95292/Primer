@@ -9,6 +9,7 @@ import android.widget.RatingBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import java.util.List;
 
@@ -19,15 +20,17 @@ public class BookAdapter extends ArrayAdapter {
     private List<Book> bookList;
 
 
-    public BookAdapter(@NonNull Context context, int resource, @NonNull Object[] objects) {
+    public BookAdapter(@NonNull Context context, int resource, @NonNull List<Book> objects) {
         super(context, resource, objects);
 
-        this.bookList = bookList;
+        this.bookList = objects;
         this.layout = resource;
         this.inflater = LayoutInflater.from(context);
     }
 
-    public View getView(int position, View convertView, ViewGroup parent) {
+    @NonNull
+    @Override
+    public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
 
         View view = inflater.inflate(this.layout, parent,false);
 
@@ -40,10 +43,10 @@ public class BookAdapter extends ArrayAdapter {
 
         nameView.setText(book.getNameBook());
         avtorView.setText(book.getAvtorName());
-        rating.getRating(book.getRating());
+        rating.setRating(book.getRating());
+
 
         return view;
-
     }
 }
 

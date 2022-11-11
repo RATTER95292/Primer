@@ -16,7 +16,7 @@
 
 
     <style name="MyRatingBar" parent="Theme.AppCompat">
-        <item name="colorControlNormal">@color/material_dynamic_neutral40</item>
+        <item name="colorControlNormal">@android:color/holo_blue_light</item>
         <item name="colorControlActivated">@android:color/holo_orange_dark</item>
     </style>
 
