@@ -3,18 +3,21 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/o"
-        android:title="One"
+        android:id="@+id/add"
+        android:title=""
+        android:icon="@android:drawable/ic_input_add"
         app:showAsAction="ifRoom"
         />
     <item
-        android:id="@+id/o1"
-        android:title="One"
+        android:id="@+id/up"
+        android:title=""
+        android:icon="@android:drawable/arrow_up_float"
         app:showAsAction="ifRoom"
         />
     <item
-        android:id="@+id/ow"
-        android:title="One"
+        android:id="@+id/down"
+        android:title=""
+        android:icon="@android:drawable/arrow_down_float"
         app:showAsAction="ifRoom"
         />
 </menu>

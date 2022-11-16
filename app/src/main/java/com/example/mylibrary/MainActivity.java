@@ -1,26 +1,35 @@
 package com.example.mylibrary;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 public class MainActivity extends AppCompatActivity {
+
+    final static int REQUEST_CODE_RATING = 1;
+    final static int REQUEST_CODE_ADDBOOK = 0;
+    int position;
 
     ListView list;
     ArrayList<Book> listBook = new ArrayList<Book>();
     BookAdapter bookAdapter;
-    int position;
 
     // Создаем переменные для работы с БД
     DBHelper databaseHelper;
@@ -107,7 +116,40 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main_menu, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
 
-
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        int id = item.getItemId();
+        switch (id){
+            case R.id.add:
+                Intent intent = new Intent(getApplicationContext(), MainActivity3.class);
+                startActivityForResult(intent, REQUEST_CODE_ADDBOOK);
+                return true;
+            case R.id.up:
+                Collections.sort(listBook, new Comparator<Book>() {
+                    @Override
+                    public int compare(Book book, Book t1) {
+                        if(book.getRating() - t1.getRating() > 0) return 1;
+                        else if (book.getRating() - t1.getRating() < 0) return -1;
+                        else return 0;
+                    }
+                });
+            case R.id.down:
+                Collections.sort(listBook, new Comparator<Book>() {
+                    @Override
+                    public int compare(Book book, Book t1) {
+                        if(book.getRating() - t1.getRating() > 0) return -1;
+                        else if (book.getRating() - t1.getRating() < 0) return 1;
+                        else return 0;
+                    }
+                });
+        }
+        return super.onOptionsItemSelected(item);
+    }
 }
 
